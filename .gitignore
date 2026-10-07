@@ -1,0 +1,10 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+*.p8
+*.pem
+rsa_key*
+fic*.json
+.env
