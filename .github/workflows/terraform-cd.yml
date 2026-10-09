@@ -1,0 +1,61 @@
+name: terraform-cd
+on:
+  push:
+    branches: [main]
+    paths: ["terraform/**", "envs/**", ".github/workflows/terraform-cd.yml"]
+  workflow_dispatch:
+    inputs:
+      env:
+        description: "Environnement cible"
+        type: choice
+        options: [dev]
+        default: dev
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: terraform-${{ inputs.env || 'dev' }}
+  cancel-in-progress: false
+
+env:
+  ENV: ${{ inputs.env || 'dev' }}
+  ARM_USE_OIDC: "true"
+  ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+  ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+  SNOWFLAKE_ORGANIZATION_NAME: ${{ vars.SNOWFLAKE_ORGANIZATION_NAME }}
+  SNOWFLAKE_ACCOUNT_NAME: ${{ vars.SNOWFLAKE_ACCOUNT_NAME }}
+  SNOWFLAKE_USER: ${{ vars.SNOWFLAKE_USER }}
+  SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
+
+jobs:
+  azure:
+    name: deploiement azure
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env || 'dev' }}
+    defaults:
+      run:
+        working-directory: terraform/azure
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init -backend-config=../../envs/${ENV}.azure.backend.hcl
+      - run: terraform plan -var-file=../../envs/${ENV}.tfvars -input=false -out=tfplan
+      - run: terraform apply -input=false tfplan
+
+  snowflake:
+    name: deploiement snowflake
+    needs: azure
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env || 'dev' }}
+    defaults:
+      run:
+        working-directory: terraform/snowflake
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - run: terraform init -backend-config=../../envs/${ENV}.snowflake.backend.hcl
+      - run: terraform plan -var-file=../../envs/${ENV}.tfvars -input=false -out=tfplan
+      - run: terraform apply -input=false tfplan
