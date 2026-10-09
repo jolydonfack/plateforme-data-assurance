@@ -10,3 +10,5 @@ Infrastructure as Code (Terraform) du prototype.
 - docs : dossier d'exploitation
 
 Règle : aucun déploiement manuel, tout passe par le pipeline CI/CD.
+
+Contact : Joly Donfack - joly.donfack@sunrise-college.com
