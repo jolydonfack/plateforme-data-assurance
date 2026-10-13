@@ -8,3 +8,8 @@ variable "location" {
   type        = string
   default     = "northeurope"
 }
+
+variable "vnet_cidr" {
+  type        = string
+  description = "Plage d adresses du VNet"
+}

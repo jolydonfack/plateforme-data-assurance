@@ -38,4 +38,4 @@ jobs:
       - name: Validate
         run: terraform validate
       - name: Plan
-        run: terraform plan -var-file=../../envs/dev.tfvars -input=false
+        run: terraform plan -lock-timeout=5m -var-file=../../envs/dev.tfvars -input=false

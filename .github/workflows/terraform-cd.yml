@@ -42,7 +42,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
       - run: terraform init -backend-config=../../envs/${ENV}.azure.backend.hcl
-      - run: terraform plan -var-file=../../envs/${ENV}.tfvars -input=false -out=tfplan
+      - run: terraform plan -lock-timeout=5m -var-file=../../envs/${ENV}.tfvars -input=false -out=tfplan
       - run: terraform apply -input=false tfplan
 
   snowflake:
@@ -57,5 +57,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
       - run: terraform init -backend-config=../../envs/${ENV}.snowflake.backend.hcl
-      - run: terraform plan -var-file=../../envs/${ENV}.tfvars -input=false -out=tfplan
+      - run: terraform plan -lock-timeout=5m -var-file=../../envs/${ENV}.tfvars -input=false -out=tfplan
       - run: terraform apply -input=false tfplan
